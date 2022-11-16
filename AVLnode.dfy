@@ -1,14 +1,3 @@
-method max(x: int, y: int) returns (z: int)
-    ensures x > y ==> z == x
-    ensures x < y ==> z == y
-{
-    if x > y {
-        return x;
-    } else {
-        return y;
-    }
-}
-
 class AVLnode
 {
     var node_set: set<AVLnode> 
@@ -35,5 +24,13 @@ class AVLnode
         height := 0;
     }
 
-    predicate balanced() // need to complete
+    predicate balanced() 
+        reads this, this.left, this.right
+    {
+        (left == null && right != null) ==> right.height == 0 &&
+        (left != null && right == null) ==> left.height == 0  &&
+        (left != null && right != null && left.height >= right.height) ==> left.height - right.height <= 1 &&
+        (left != null && right != null && left.height < right.height) ==> right.height - left.height <= 1 &&
+        (left != null) ==> left.balanced() && (right != null) ==> right.balanced() 
+    }
 }

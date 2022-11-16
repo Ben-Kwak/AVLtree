@@ -8,22 +8,32 @@ class AVLtree {
     }
 
     predicate balanced()
-        reads this
+        reads this, this.root
     {
         root != null ==> root.balanced()
     }
 
     // Step 1
-    // need to complete
+    // Done
     method nodeHeight(avlNode: AVLnode?) returns (height: int) 
     {
-        return 0;
+        if (avlNode == null) {
+            height := -1;
+        } else {
+            height := avlNode.height;
+        }
     }
 
-    // need to complete
+    // Done
     method heightDiff(avlNode: AVLnode?) returns (diff: int) 
     {
-        return 0;
+        if (avlNode == null) {
+            diff := 0;
+        } else {
+            var leftHeight: int := nodeHeight(avlNode.left);
+            var rightHeight: int := nodeHeight(avlNode.right);
+            diff := leftHeight - rightHeight;
+        }
     }
 
     // need to complete
@@ -31,6 +41,7 @@ class AVLtree {
     method rightRotate()
     method leftRightRotate()
     method rightLeftRotate()
+    method minNode()
 
     // Step 2
     
