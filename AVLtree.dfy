@@ -1,33 +1,46 @@
 include "AVLnode.dfy"
 
 class AVLtree {
+    ghost var objects: set<object> // tree and nodes
+
     var root: AVLnode?
 
-    constructor() {
+    constructor () 
+        ensures objects == {this}
+        ensures root == null
+        ensures valid()
+        ensures balanced()
+    {
+        objects := {this};
         root := null;
     }
 
-    predicate balanced()
-        reads this, this.root
+    // need for balance()
+    predicate valid()
+        reads this, objects
     {
+        root != null ==> root in objects && root.nodes < objects
+    }
+
+    predicate balanced()
+        reads this, objects
+    {
+        valid() &&
         root != null ==> root.balanced()
     }
 
-    // Step 1
-    // Done
     method nodeHeight(avlNode: AVLnode?) returns (height: int) 
     {
-        if (avlNode == null) {
+        if avlNode == null {
             height := -1;
         } else {
             height := avlNode.height;
         }
     }
 
-    // Done
     method heightDiff(avlNode: AVLnode?) returns (diff: int) 
     {
-        if (avlNode == null) {
+        if avlNode == null {
             diff := 0;
         } else {
             var leftHeight: int := nodeHeight(avlNode.left);
@@ -36,33 +49,30 @@ class AVLtree {
         }
     }
 
-    // need to complete
+    // Task 1
     method leftRotate()
     method rightRotate()
     method leftRightRotate()
     method rightLeftRotate()
     method minNode()
 
-    // Step 2
+    // for debug
+    method printAVLtree()
+        requires balanced()
+    {
+        
+    }
     
-    // need to complete
+    // Task 2
     method insert(key: int) 
         modifies this
     {
     
     }
 
-    // need to complete
     method delete(key: int) 
         modifies this
     {
     
-    }
-
-    // for debug
-    method printAVLtree()
-        requires balanced()
-    {
-        
     }
 }
