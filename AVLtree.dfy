@@ -19,7 +19,7 @@ class AVLtree {
     predicate valid()
         reads this, objects
     {
-        root != null ==> root in objects && root.nodes < objects
+        root != null ==> (root in objects && root.nodes < objects)
     }
 
     predicate balanced()
@@ -56,6 +56,7 @@ class AVLtree {
     method leftRightRotate()
     method rightLeftRotate()
     method minNode()
+    method findNode()
 
     // for debug
     method printAVLtree()

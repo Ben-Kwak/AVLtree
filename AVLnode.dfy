@@ -47,10 +47,11 @@ class AVLnode
         reads this, nodes
     {
         valid() &&
-        (left == null && right != null) ==> right.height == 0 &&
-        (left != null && right == null) ==> left.height == 0  &&
-        (left != null && right != null && left.height >= right.height) ==> left.height - right.height <= 1 &&
-        (left != null && right != null && left.height < right.height) ==> right.height - left.height <= 1 &&
-        (left != null) ==> left.balanced() && (right != null) ==> right.balanced() 
+        (left == null && right != null) ==> (right.height == 0 && right.balanced()) &&
+        (left != null && right == null) ==> (left.height == 0  && left.balanced()) &&
+        (left != null && right != null && left.height >= right.height) ==> (left.height - right.height <= 1 && 
+                                                                            left.balanced() && right.balanced()) &&
+        (left != null && right != null && left.height < right.height) ==> (right.height - left.height <= 1 && 
+                                                                            left.balanced() && right.balanced())
     }
 }

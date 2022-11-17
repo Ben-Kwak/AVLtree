@@ -8,6 +8,6 @@ method Main() {
     assert(avlNode.balanced());
     var height: int := avlTree.nodeHeight(avlTree.root);
     var heightDiff: int := avlTree.heightDiff(avlTree.root);
-    print(height);
-    print(heightDiff);
+    print height, "\n";
+    print heightDiff;
 }
