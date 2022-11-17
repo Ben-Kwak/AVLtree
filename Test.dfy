@@ -1,7 +1,7 @@
 include "AVLnode.dfy"
 include "AVLtree.dfy"
 
-method Test() {
+method Main() {
     var avlTree: AVLtree := new AVLtree();
     var avlNode: AVLnode := new AVLnode(5);
     assert(avlTree.balanced());

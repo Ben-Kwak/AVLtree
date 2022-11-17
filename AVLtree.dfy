@@ -50,6 +50,7 @@ class AVLtree {
     }
 
     // Task 1
+    /*
     method leftRotate()
     method rightRotate()
     method leftRightRotate()
@@ -75,4 +76,5 @@ class AVLtree {
     {
     
     }
+    */
 }
