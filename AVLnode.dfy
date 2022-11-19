@@ -35,12 +35,12 @@ class AVLnode {
 	  					this !in left.nodes &&
       					left.nodes <= nodes &&
       					left.valid() &&
-      					forall i :: i in left.keys ==> i < key) &&
+      					(forall i :: i in left.keys ==> i < key)) &&
     	(right != null ==> right in nodes &&
 						this !in right.nodes &&
       					right.nodes <= nodes && 
       					right.valid() &&
-      					forall i :: i in right.keys ==> key < i) 
+      					(forall i :: i in right.keys ==> key < i))
   	}
 
 	predicate balanced() 

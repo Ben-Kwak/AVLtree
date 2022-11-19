@@ -1,10 +1,7 @@
-method max(x: int, y: int) returns (z: int)
-    ensures x > y ==> z == x
-    ensures x < y ==> z == y
+function method max(x: int, y: int) : int
 {
-    if x > y {
-        return x;
-    } else {
-        return y;
-    }
+    if (x > y) then
+        x
+    else 
+        y
 }

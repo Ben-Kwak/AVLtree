@@ -1,4 +1,5 @@
 include "AVLnode.dfy"
+include "HelperFunctions.dfy"
 
 class AVLtree {
     ghost var objects: set<object> // tree and nodes
@@ -29,7 +30,7 @@ class AVLtree {
         root != null ==> root.balanced()
     }
 
-    method nodeHeight(avlNode: AVLnode?) returns (height: int) 
+    static method nodeHeight(avlNode: AVLnode?) returns (height: int) 
     {
         if avlNode == null {
             height := -1;
@@ -69,12 +70,47 @@ class AVLtree {
 
         return temp;
     }
+    
+    method updateHeight(node:AVLnode)
+        modifies node;
+        requires node.valid();
+        ensures old(node.left) == node.left;
+        ensures old(node.right) == node.right;
+        ensures old(node.key) == node.key;
+        ensures node.valid();
+    {
+        var r_height:int := nodeHeight(node.right);
+        var l_height:int := nodeHeight(node.left);
+        node.height := 1 + max(r_height,l_height);
+    }
+   method rightRotate(node: AVLnode) returns( new_node : AVLnode)
+        requires node.left != null;
+        requires node.valid();
+        modifies node.nodes;
+        ensures old(node.nodes) == new_node.nodes;
+        ensures old(node.keys) == new_node.keys;
+        ensures new_node.valid();
+        ensures node.valid();
+        ensures new_node == old(node.left);
+        ensures new_node.left == old(new_node.left);
+        ensures new_node.right == old(node);
+        ensures node.left == old(node.left.right);
+        ensures node.right == old(node.right);
+    {
+        new_node := node.left;
+        var T3 := new_node.right;
+        new_node.right := node;
+        node.left := T3;
+        updateHeight(node);
+        updateHeight(new_node);
+        
 
 
+    }
     // Task 1
     /*
     method leftRotate()
-    method rightRotate()
+ 
     method leftRightRotate()
     method rightLeftRotate()
     method minNode()
