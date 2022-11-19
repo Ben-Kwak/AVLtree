@@ -1,6 +1,7 @@
-class AVLnode
-{
-    ghost var nodes: set<AVLnode> 
+include "HelperFunctions.dfy"
+
+class AVLnode {
+	ghost var nodes: set<AVLnode> 
     ghost var keys: set<int>
 
     var key: int
@@ -15,7 +16,6 @@ class AVLnode
         ensures left == null
         ensures right == null
         ensures height == 0
-        ensures valid()
         ensures balanced()
     {
         nodes := {this};
@@ -27,23 +27,23 @@ class AVLnode
     }
 
     // need for balance()
-    predicate valid()
-        reads this, nodes
-    {
-        this in nodes &&
-        (left != null ==> left in nodes &&
-                        this !in left.nodes &&
-                        left.nodes < nodes && 
-                        forall i :: i in left.keys ==> i < key &&
-                        left.valid()) &&
-        (right != null ==> right in nodes &&
-                        this !in right.nodes &&
-                        right.nodes < nodes && 
-                        forall i :: i in right.keys ==> i > key &&
-                        right.valid()) 
-    }
+	predicate valid()
+    	reads this, nodes
+  	{
+    	this in nodes &&
+    	(left != null ==> left in nodes &&
+	  					this !in left.nodes &&
+      					left.nodes <= nodes &&
+      					left.valid() &&
+      					forall i :: i in left.keys ==> i < key) &&
+    	(right != null ==> right in nodes &&
+						this !in right.nodes &&
+      					right.nodes <= nodes && 
+      					right.valid() &&
+      					forall i :: i in right.keys ==> key < i) 
+  	}
 
-    predicate balanced() 
+	predicate balanced() 
         reads this, nodes
     {
         valid() &&
