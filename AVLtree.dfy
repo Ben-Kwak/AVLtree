@@ -70,6 +70,23 @@ class AVLtree {
 
         return temp;
     }
+
+    /* skip verification for now to implement insert and delete first */
+    method {:verify false} minNode(node: AVLnode) returns (min_node: AVLnode?)
+        requires node.valid()
+        ensures min_node != null ==> min_node in node.nodes
+        ensures min_node != null ==> (forall i :: i in node.keys ==> min_node.key <= i)
+    {
+        var temp: AVLnode := node;
+
+        while temp.left != null 
+            decreases if temp.left != null then temp.left.nodes else {}
+        {
+            temp := temp.left;
+        }
+
+        return temp;
+    }
     
     method updateHeight(node:AVLnode)
         modifies node;
