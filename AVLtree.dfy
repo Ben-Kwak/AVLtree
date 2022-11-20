@@ -195,10 +195,72 @@ class AVLtree {
         }
         
     }
+    method insert(node:AVLnode,key: int)returns(ret :AVLnode)
+        modifies this
+        modifies if node != null then node.nodes + {node} else {}
+        modifies root
+        requires valid()
+        requires node == null || (node.valid() && node.balanced())
+        ensures valid()
+        ensures balanced()
+        decreases if node == null then {} else node.nodes
+    {
+        if (root == null){
+           root := insert(root,key);
+           return root;
+
+        }
+        else if (node == null){
+            ret:= new AVLnode(key);
+            return ret;
+        }
+        else{
+            if (key < node.key){
+                assert node.right == null || node.right.valid();
+                var t := insert(node.left,key);
+                node.left := t;
+                node.nodes := node.nodes + node.left.nodes;
+                node.keys := node.keys + {key};
+            }else if (key > node.key){
+                assert node.left == null || node.left.valid();
+                node.right := insert(node.right,key);
+            }
+            var l_h := nodeHeight(node.left);
+            var r_h := nodeHeight(node.right);
+            node.height := max(l_h,r_h);
+            var balance := heightDiff(node);
+                /*Left Left */
+            if (balance > 1 && key < (node.left.key))
+            {
+                ret:= rightRotate(node);
+                return ret;
+            }    
+            /*Right Right */
+            if (balance < -1 && key > (node.right.key))
+            {
+                ret:= leftRotate(node);
+                return ret;
+            }    
+
+            /*Left Right */
+            if (balance > 1 && key > (node.left.key))
+            {
+                ret := leftRightRotate(node);
+            }
+
+            /*Right Left */
+            if (balance < -1 && key < (node.right.key))
+            {
+                ret := rightLeftRotate(node);
+            }
+
+            return ret;
+        }
+
+            
+    }
     // Task 1
     /*
-    method minNode()
-
     // for debug
     method printAVLtree()
         requires balanced()
