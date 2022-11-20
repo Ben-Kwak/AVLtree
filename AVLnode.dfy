@@ -10,13 +10,10 @@ class AVLnode {
     var height: int
 
     constructor (k: int) 
-        ensures nodes == {this}
-        ensures keys == {k}
-        ensures key == key
-        ensures left == null
-        ensures right == null
-        ensures height == 0
+        ensures valid()
         ensures balanced()
+        ensures keys == {k}
+        ensures nodes == {this};
     {
         nodes := {this};
         keys := {k};
@@ -40,9 +37,23 @@ class AVLnode {
 						this !in right.nodes &&
       					right.nodes <= nodes && 
       					right.valid() &&
-      					(forall i :: i in right.keys ==> key < i))
+      					(forall i :: i in right.keys ==> key < i)) &&
+        (left == null && right == null ==> keys == {key}) &&
+        (left != null && right == null ==> keys == left.keys + {key}) &&
+        (left == null && right != null ==> keys == {key} + right.keys) &&
+        (left != null && right != null ==> left.nodes !! right.nodes && keys == left.keys + {key} + right.keys)
   	}
-
+  // predicate Height_Valid() 
+  //   reads this, nodes 
+  // {
+  //   valid() &&
+  //   (left == null && right == null) ==> height == -1 &&
+  //   (left != null && right == null) ==> height == left.height + 1 &&
+  //   (left == null && right != null) ==> height == right.height + 1 &&
+  //   (left != null && right != null) ==> height == max(left.height, right.height) + 1 &&
+  //   (right != null) ==> right.Height_Valid() &&
+  //   (left != null) ==> left.Height_Valid()
+  // }
 	predicate balanced() 
         reads this, nodes
     {
