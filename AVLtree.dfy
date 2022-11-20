@@ -205,18 +205,67 @@ class AVLtree {
     {
         
     }
-    
+     */
+
+    /* 
     // Task 2
-    method insert(key: int) 
-        modifies this
+    method insert(node: AVLnode, key: int) returns (result: AVLnode)
+        // if node is null, call new node func and set key height to 0
+        ensures balanced()
+        //requires valid()
+        
     {
+        if (node == null){
+            // need an insert helper function??
+            return;
+        }
+
+        // logic 
+        if (key < node.key){ 
+            //call func that sets node->root to key, left = null, right = null
+            node.left:= insert(node.left,key);
+            
+        }
+        else if (key > node.key)
+        {
+            node.right := insert(node.right,key);
+        }
+        // node height
+        node.height := (max(nodeHeight(node.left),nodeHeight(node.right)) +1);
+        
+        var balance : int:= heightDiff(node);
+
+        //implement LL rotate
+        if (balance > 1 && key < (node.left.key)){
+            return rightRotate(node);
+        } 
+        //RR rotate
+        if(balance < -1 && key > (node.right.key)){
+            return leftRotate(node);
+        }
+
+
+        //LR rotate
+        if (balance >1 && key > (node.left.key)){
+            node := leftRightRotate(node);
+        }
+
+        //RL rotate
+        if(balance < -1 && key < (node.right.key)){
+            node := rightLeftRotate(node);
+        }
     
+    return result;
+
     }
 
+
+
     method delete(key: int) 
-        modifies this
+        
     {
     
     }
+    
     */
 }
