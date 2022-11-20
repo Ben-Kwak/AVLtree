@@ -201,7 +201,7 @@ class AVLtree {
         modifies objects;
         modifies root;
         ensures valid() && balanced();
-        ensures root.keys == old(root.keys) + {key};
+        ensures root != null && old(root) != null ==> root.keys == old(root.keys) + {key};
     {
         root := insert2(root, key);
         assert root.valid();
