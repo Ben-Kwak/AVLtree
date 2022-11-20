@@ -207,8 +207,9 @@ class AVLtree {
     }
      */
 
-    /* 
+    
     // Task 2
+    /*
     method insert(node: AVLnode, key: int) returns (result: AVLnode)
         // if node is null, call new node func and set key height to 0
         ensures balanced()
@@ -231,17 +232,22 @@ class AVLtree {
             node.right := insert(node.right,key);
         }
         // node height
-        node.height := (max(nodeHeight(node.left),nodeHeight(node.right)) +1);
+        var tmp: int:= nodeHeight(node.left);
+        var tmp2: int:= nodeHeight(node.right);
+        node.height := (max(tmp,tmp2) +1);
         
         var balance : int:= heightDiff(node);
 
         //implement LL rotate
         if (balance > 1 && key < (node.left.key)){
-            return rightRotate(node);
+            
+            var tmpnode: AVLnode:= rightRotate(node);
+            return tmpnode;
         } 
         //RR rotate
         if(balance < -1 && key > (node.right.key)){
-            return leftRotate(node);
+            var tmpnode2: AVLnode:= leftRotate(node);
+            return tmpnode2;
         }
 
 
