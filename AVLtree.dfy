@@ -71,21 +71,6 @@ class AVLtree {
         return temp;
     }
 
-<<<<<<< HEAD
-    method rightRotate(z: AVLnode) returns( y : AVLnode)
-        requires z.left != null;
-        requires z.valid();
-        modifies z.nodes;
-        ensures old(z.nodes) == y.nodes;
-        ensures old(z.keys) == y.keys;
-        ensures y.valid();
-        ensures z.valid();
-        ensures y == old(z.left);
-        ensures y.left == old(y.left);
-        ensures y.right == old(z);
-        ensures z.left == old(z.left.right);
-        ensures z.right == old(z.right);
-=======
     /* skip verification for now to implement insert and delete first */
     method {:verify false} minNode(node: AVLnode) returns (min_node: AVLnode?)
         requires node.valid()
@@ -103,14 +88,19 @@ class AVLtree {
         return temp;
     }
     
-    method updateHeight(node:AVLnode)
-        modifies node;
-        requires node.valid();
-        ensures old(node.left) == node.left;
-        ensures old(node.right) == node.right;
-        ensures old(node.key) == node.key;
-        ensures node.valid();
->>>>>>> fe6340921698f39f79ee8b2728d8ed8585de05a1
+    method rightRotate(z: AVLnode) returns( y : AVLnode)
+        requires z.left != null;
+        requires z.valid();
+        modifies z.nodes;
+        ensures old(z.nodes) == y.nodes;
+        ensures old(z.keys) == y.keys;
+        ensures y.valid();
+        ensures z.valid();
+        ensures y == old(z.left);
+        ensures y.left == old(y.left);
+        ensures y.right == old(z);
+        ensures z.left == old(z.left.right);
+        ensures z.right == old(z.right);
     {
         y := z.left;
         var T3 := y.right;
