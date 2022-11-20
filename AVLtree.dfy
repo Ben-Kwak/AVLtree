@@ -71,6 +71,7 @@ class AVLtree {
         return temp;
     }
 
+<<<<<<< HEAD
     method rightRotate(z: AVLnode) returns( y : AVLnode)
         requires z.left != null;
         requires z.valid();
@@ -84,6 +85,32 @@ class AVLtree {
         ensures y.right == old(z);
         ensures z.left == old(z.left.right);
         ensures z.right == old(z.right);
+=======
+    /* skip verification for now to implement insert and delete first */
+    method {:verify false} minNode(node: AVLnode) returns (min_node: AVLnode?)
+        requires node.valid()
+        ensures min_node != null ==> min_node in node.nodes
+        ensures min_node != null ==> (forall i :: i in node.keys ==> min_node.key <= i)
+    {
+        var temp: AVLnode := node;
+
+        while temp.left != null 
+            decreases if temp.left != null then temp.left.nodes else {}
+        {
+            temp := temp.left;
+        }
+
+        return temp;
+    }
+    
+    method updateHeight(node:AVLnode)
+        modifies node;
+        requires node.valid();
+        ensures old(node.left) == node.left;
+        ensures old(node.right) == node.right;
+        ensures old(node.key) == node.key;
+        ensures node.valid();
+>>>>>>> fe6340921698f39f79ee8b2728d8ed8585de05a1
     {
         y := z.left;
         var T3 := y.right;
