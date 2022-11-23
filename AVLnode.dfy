@@ -11,6 +11,7 @@ class AVLnode {
 
     constructor (k: int) 
         ensures valid()
+        ensures fresh(nodes - {this})
         ensures balanced()
         ensures keys == {k}
         ensures nodes == {this};

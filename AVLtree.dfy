@@ -9,7 +9,8 @@ class AVLtree {
     constructor () 
         ensures objects == {this}
         ensures root == null
-        ensures valid()
+        ensures valid() 
+        ensures fresh(objects - {this})
         ensures balanced()
     {
         objects := {this};
@@ -124,6 +125,7 @@ class AVLtree {
         l_h := nodeHeight(y.left);
         y.height := 1 + max(r_h,l_h);
     }
+
     method leftRotate(z: AVLnode) returns( y : AVLnode)
         requires z.right != null;
         requires z.valid()
@@ -159,6 +161,7 @@ class AVLtree {
         l_h := nodeHeight(y.left);
         y.height := 1 + max(r_h,l_h);
     }
+
     method leftRightRotate(z: AVLnode) returns( y : AVLnode)
         modifies z.nodes
         requires z.valid()
@@ -177,6 +180,7 @@ class AVLtree {
         }
         
     }
+
     method rightLeftRotate(z: AVLnode) returns( y : AVLnode)
         modifies z.nodes
         requires z.valid()
@@ -197,11 +201,12 @@ class AVLtree {
     }
 
     method insert(key: int) 
-        requires valid();
+        requires valid()
         modifies objects;
         modifies root;
         ensures valid() && balanced();
-        ensures root != null && old(root) != null ==> root.keys == old(root.keys) + {key};
+        //ensures fresh(objects - old(objects));
+        //ensures root != null && old(root) != null ==> root.keys == old(root.keys) + {key};
     {
         root := insert2(root, key);
         assert root.valid();
@@ -209,17 +214,20 @@ class AVLtree {
     }
 
     method insert2(node:AVLnode?, key: int) returns(ret : AVLnode)
-        modifies this
-        modifies if node != null then node.nodes + {node} else {}
-        modifies root
         requires node == null || (node.valid() && node.balanced())
+        modifies if node != null then node.nodes + {node} else {}
         decreases if node == null then {} else node.nodes
+        ensures node == null ==> fresh(ret.nodes) && ret.keys == {key}
+        ensures ret.valid() && ret.balanced()
+        ensures node == null ==> fresh(ret.nodes) && ret.keys == {key}
+        //ensures node != null ==> ret.keys == old(node.keys) + {key}
+        //ensures node != null ==> fresh(ret.nodes - old(node.nodes))
     {
         if (node == null){
             ret:= new AVLnode(key);
             return ret;
         } else {
-            if (key < node.key){
+            if (key < node.key) {
                 assert node.right == null || node.right.valid();
                 var t := insert2(node.left,key);
                 node.left := t;
@@ -228,11 +236,13 @@ class AVLtree {
             } else if (key > node.key){
                 assert node.left == null || node.left.valid();
                 node.right := insert2(node.right,key);
+                node.nodes := node.nodes + node.right.nodes;
+                node.keys := node.keys + {key};
             }
 
             var l_h := nodeHeight(node.left);
             var r_h := nodeHeight(node.right);
-            node.height := max(l_h,r_h);
+            node.height := max(l_h, r_h + 1);
             var balance := heightDiff(node);
 
             /*Left Left */
@@ -260,8 +270,6 @@ class AVLtree {
             {
                 ret := rightLeftRotate(node);
             }
-
-            return ret;
         }      
     }
 
