@@ -10,7 +10,6 @@ class AVLtree {
         ensures objects == {this}
         ensures root == null
         ensures valid() 
-        ensures fresh(objects - {this})
         ensures balanced()
     {
         objects := {this};
@@ -174,7 +173,7 @@ class AVLtree {
         ensures y.left != null ==> y.left in y.left.nodes;
     {
         y := z;
-        if z.left != null && y.left != null && y.left.right != null{
+        if z.left != null && y.left != null && y.left.right != null {
             y.left := leftRotate(y.left);
             y:= rightRotate(y);
         }
@@ -193,7 +192,7 @@ class AVLtree {
         ensures y.left != null ==> y.left in y.left.nodes;
     {
         y := z;
-        if z.right != null && y.right != null && y.right.left != null{
+        if z.right != null && y.right != null && y.right.left != null {
             y.right := rightRotate(y.right);
             y:= leftRotate(y);
         }
@@ -281,73 +280,14 @@ class AVLtree {
     {
         
     }
-     */
+    */
 
     
     // Task 2
     /*
-    method insert(node: AVLnode, key: int) returns (result: AVLnode)
-        // if node is null, call new node func and set key height to 0
-        ensures balanced()
-        //requires valid()
-        
-    {
-        if (node == null){
-            // need an insert helper function??
-            return;
-        }
-
-        // logic 
-        if (key < node.key){ 
-            //call func that sets node->root to key, left = null, right = null
-            node.left:= insert(node.left,key);
-            
-        }
-        else if (key > node.key)
-        {
-            node.right := insert(node.right,key);
-        }
-        // node height
-        var tmp: int:= nodeHeight(node.left);
-        var tmp2: int:= nodeHeight(node.right);
-        node.height := (max(tmp,tmp2) +1);
-        
-        var balance : int:= heightDiff(node);
-
-        //implement LL rotate
-        if (balance > 1 && key < (node.left.key)){
-            
-            var tmpnode: AVLnode:= rightRotate(node);
-            return tmpnode;
-        } 
-        //RR rotate
-        if(balance < -1 && key > (node.right.key)){
-            var tmpnode2: AVLnode:= leftRotate(node);
-            return tmpnode2;
-        }
-
-
-        //LR rotate
-        if (balance >1 && key > (node.left.key)){
-            node := leftRightRotate(node);
-        }
-
-        //RL rotate
-        if(balance < -1 && key < (node.right.key)){
-            node := rightLeftRotate(node);
-        }
-    
-    return result;
-
-    }
-
-
-
-    method delete(key: int) 
-        
+    method delete(key: int)  
     {
     
     }
-    
     */
 }
