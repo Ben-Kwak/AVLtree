@@ -42,20 +42,7 @@ class AVLnode {
         (left != null && right == null ==> keys == left.keys + {key}) &&
         (left == null && right != null ==> keys == {key} + right.keys) &&
         (left != null && right != null ==> left.nodes !! right.nodes && keys == left.keys + {key} + right.keys)
-  	}
-
-    // predicate Height_Valid() 
-    //   reads this, nodes 
-    // {
-    //   valid() &&
-    //   (left == null && right == null) ==> height == -1 &&
-    //   (left != null && right == null) ==> height == left.height + 1 &&
-    //   (left == null && right != null) ==> height == right.height + 1 &&
-    //   (left != null && right != null) ==> height == max(left.height, right.height) + 1 &&
-    //   (right != null) ==> right.Height_Valid() &&
-    //   (left != null) ==> left.Height_Valid()
-    // }
-    
+  	}    
 	predicate balanced() 
         reads this, nodes
     {

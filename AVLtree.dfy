@@ -3,7 +3,7 @@ include "HelperFunctions.dfy"
 
 class AVLtree {
     ghost var objects: set<object> // tree and nodes
-
+    ghost var keys: set<int>
     var root: AVLnode?
 
     constructor () 
@@ -14,20 +14,26 @@ class AVLtree {
     {
         objects := {this};
         root := null;
+        keys := {};
     }
 
     // need for balance()
     predicate valid()
         reads this, objects
     {
-        root != null ==> (root in objects && root.nodes < objects)
+        this in objects &&
+        (root == null ==> keys == {}) &&
+        (root != null ==>
+            root in objects && root.nodes <= objects &&
+            root.valid() &&
+            keys == root.keys)
     }
 
     predicate balanced()
         reads this, objects
     {
         valid() &&
-        root != null ==> root.balanced()
+        (root != null ==> root.balanced())
     }
 
     static method nodeHeight(avlNode: AVLnode?) returns (height: int) 
@@ -39,7 +45,7 @@ class AVLtree {
         }
     }
 
-    method heightDiff(avlNode: AVLnode?) returns (diff: int) 
+    static method heightDiff(avlNode: AVLnode?) returns (diff: int) 
     {
         if avlNode == null {
             diff := 0;
@@ -76,6 +82,7 @@ class AVLtree {
         requires node.valid()
         ensures min_node != null ==> min_node in node.nodes
         ensures min_node != null ==> (forall i :: i in node.keys ==> min_node.key <= i)
+        ensures min_node.valid()
     {
         var temp: AVLnode := node;
 
@@ -88,7 +95,7 @@ class AVLtree {
         return temp;
     }
     
-    method rightRotate(z: AVLnode) returns( y : AVLnode)
+    static method rightRotate(z: AVLnode) returns( y : AVLnode)
         requires z.left != null;
         requires z.valid();
         modifies z.nodes;
@@ -124,8 +131,7 @@ class AVLtree {
         l_h := nodeHeight(y.left);
         y.height := 1 + max(r_h,l_h);
     }
-
-    method leftRotate(z: AVLnode) returns( y : AVLnode)
+    static method leftRotate(z: AVLnode) returns( y : AVLnode)
         requires z.right != null;
         requires z.valid()
         modifies z.nodes;
@@ -161,7 +167,7 @@ class AVLtree {
         y.height := 1 + max(r_h,l_h);
     }
 
-    method leftRightRotate(z: AVLnode) returns( y : AVLnode)
+    static method leftRightRotate(z: AVLnode) returns( y : AVLnode)
         modifies z.nodes
         requires z.valid()
         ensures y.valid()
@@ -177,10 +183,11 @@ class AVLtree {
             y.left := leftRotate(y.left);
             y:= rightRotate(y);
         }
-        
+        assert y.right != null ==> y.right in y.right.nodes;
+        assert y.left != null ==> y.left in y.left.nodes;
     }
 
-    method rightLeftRotate(z: AVLnode) returns( y : AVLnode)
+    static method rightLeftRotate(z: AVLnode) returns( y : AVLnode)
         modifies z.nodes
         requires z.valid()
         ensures y.valid()
@@ -210,68 +217,258 @@ class AVLtree {
         root := insert2(root, key);
         assert root.valid();
         objects := root.nodes + {this};
+        keys := root.keys;
     }
 
-    method insert2(node:AVLnode?, key: int) returns(ret : AVLnode)
+
+    static method insert2(node:AVLnode?, key:int) returns (ret:AVLnode)
         requires node == null || (node.valid() && node.balanced())
         modifies if node != null then node.nodes + {node} else {}
+        ensures ret.valid()
+        ensures ret.balanced()
+        ensures node == null ==> fresh(ret.nodes) && ret.keys == {key}
+        ensures node != null ==> ret.keys == old(node.keys) + {key}
+        ensures node != null ==> fresh(ret.nodes - old(node.nodes))
         decreases if node == null then {} else node.nodes
-        ensures node == null ==> fresh(ret.nodes) && ret.keys == {key}
-        ensures ret.valid() && ret.balanced()
-        ensures node == null ==> fresh(ret.nodes) && ret.keys == {key}
-        //ensures node != null ==> ret.keys == old(node.keys) + {key}
-        //ensures node != null ==> fresh(ret.nodes - old(node.nodes))
     {
-        if (node == null){
-            ret:= new AVLnode(key);
-            return ret;
+        if node == null {
+            ret := new AVLnode(key);
         } else {
-            if (key < node.key) {
-                assert node.right == null || node.right.valid();
-                var t := insert2(node.left,key);
+            if key == node.key {
+                ret := node;
+            }
+            else if (key < node.key) {
+                var t := insert2(node.left, key);
+                var r_h:int := nodeHeight(t.right);
+                var l_h:int := nodeHeight(t.left);
+                t.height := 1 + max(r_h,l_h);
                 node.left := t;
                 node.nodes := node.nodes + node.left.nodes;
                 node.keys := node.keys + {key};
-            } else if (key > node.key){
-                assert node.left == null || node.left.valid();
-                node.right := insert2(node.right,key);
+                ret := node;
+                var balance := heightDiff(ret);
+                if(balance < -1)
+                {
+                    if(ret.right != null)
+                    {
+                        var diff := heightDiff(ret.right);
+                        if(diff >= 0)
+                        {
+                            ret := leftRotate(ret);                        
+                        }
+                        else
+                        {
+                            ret := rightLeftRotate(ret);
+                        }
+                    }
+            }
+
+            } else {
+                var t := insert2(node.right, key);
+                var r_h:int := nodeHeight(t.right);
+                var l_h:int := nodeHeight(t.left);
+                t.height := 1 + max(r_h,l_h);
+                node.right := t;
                 node.nodes := node.nodes + node.right.nodes;
                 node.keys := node.keys + {key};
+                ret := node;
+                var balance := heightDiff(ret);
+                if(balance < -1)
+                {
+                    if(ret.right != null)
+                    {
+                        var diff := heightDiff(ret.right);
+                        if(diff >= 0)
+                        {
+                            ret := leftRotate(ret);                        
+                        }
+                        else
+                        {
+                            ret := rightLeftRotate(ret);
+                        }
+                    }
+                }   
             }
 
-            var l_h := nodeHeight(node.left);
-            var r_h := nodeHeight(node.right);
-            node.height := max(l_h, r_h + 1);
-            var balance := heightDiff(node);
-
-            /*Left Left */
-            if (balance > 1 && key < (node.left.key))
-            {
-                ret:= rightRotate(node);
-                return ret;
-            }   
-
-            /*Right Right */
-            if (balance < -1 && key > (node.right.key))
-            {
-                ret:= leftRotate(node);
-                return ret;
-            }    
-
-            /*Left Right */
-            if (balance > 1 && key > (node.left.key))
-            {
-                ret := leftRightRotate(node);
-            }
-
-            /*Right Left */
-            if (balance < -1 && key < (node.right.key))
-            {
-                ret := rightLeftRotate(node);
-            }
-        }      
+        }
     }
+    method delete(key: int)
+        requires valid()
+        requires balanced()
+        modifies objects
+        ensures valid() && balanced()
+        ensures keys == old(keys) - {key}
+    {
 
+        if root != null {
+            var newRoot := delete1(root,key);
+            root := newRoot;
+            if root == null {
+                keys := {};
+                objects := {this};
+            } else {
+                keys := root.keys;
+                objects := root.nodes + {this};
+            }
+        }
+    }
+    method remove_min(node: AVLnode) returns (min: int, new_node: AVLnode?)
+        requires node.valid()
+        modifies node.nodes
+        ensures new_node != null ==> fresh(new_node.nodes - old(node.nodes))
+        ensures new_node != null ==> new_node.valid()
+        ensures new_node == null ==> old(node.keys) == {min}
+        ensures new_node != null ==> new_node.nodes <= old(node.nodes)
+        ensures new_node != null ==> new_node.keys == old(node.keys) - {min}
+        ensures min in old(node.keys) && (forall x :: x in old(node.keys) ==> min <= x)
+        decreases node.nodes
+    {
+        if node.left == null {
+            min := node.key;
+            new_node := node.right;
+        } else {
+            var t;
+            min,t := remove_min(node.left);
+            node.left := t;
+            new_node := node;
+            node.keys := node.keys - {min};
+            if node.left != null { node.nodes := node.nodes + node.left.nodes; }
+            if(new_node != null) {
+                var balance := heightDiff(new_node);
+                if(balance < -1)
+                {
+                    if(new_node.right != null)
+                    {
+                        var diff := heightDiff(new_node.right);
+                        if(diff >= 0)
+                        {
+                            new_node := leftRotate(new_node);                        
+                        }
+                        else
+                        {
+                            new_node := rightLeftRotate(new_node);
+                        }
+                    }
+                }
+                var l_h := nodeHeight(new_node.left);
+                var r_h := nodeHeight(new_node.right);
+                new_node.height := max(l_h, r_h + 1);
+            }
+        }
+    }
+    method delete1(node:AVLnode,key: int) returns (new_node: AVLnode?)
+        requires node.valid()
+        requires node.balanced()
+        modifies node.nodes
+        ensures new_node != null ==> fresh(new_node.nodes - old(node.nodes))
+        ensures new_node != null ==> new_node.valid()
+        ensures new_node != null ==> new_node.balanced()
+        ensures new_node == null ==> old(node.keys) <= {key}
+        ensures new_node != null ==> new_node.keys == old(node.keys) - {key}
+        decreases node.nodes
+    {
+        new_node := node;
+        if new_node.left != null && key < new_node.key {
+            new_node.left := delete1(new_node.left,key);
+            new_node.keys := new_node.keys - {key};
+            if new_node.left != null { new_node.nodes := new_node.nodes + new_node.left.nodes; }
+            var l_h := nodeHeight(new_node.left);
+            var r_h := nodeHeight(new_node.right);
+            new_node.height := max(l_h, r_h + 1);
+            var balance := heightDiff(new_node);
+            if(balance < -1)
+            {
+                if(new_node.right != null)
+                {
+                    var diff := heightDiff(new_node.right);
+                    if(diff >= 0)
+                    {
+                        new_node := leftRotate(new_node);                        
+                    }
+                    else
+                    {
+                        new_node := rightLeftRotate(new_node);
+                    }
+                }
+            }
+        } else if new_node.right != null && new_node.key < key {
+            new_node.right := delete1(new_node.right,key);
+            new_node.keys := new_node.keys - {key};
+            if new_node.right != null { new_node.nodes := new_node.nodes + new_node.right.nodes; }
+            var l_h := nodeHeight(new_node.left);
+            var r_h := nodeHeight(new_node.right);
+            new_node.height := max(l_h, r_h + 1);
+            var balance := heightDiff(new_node);
+            if(balance > 1)
+            {
+                var diff := heightDiff(new_node.right);
+                if(new_node.left != null)
+                {
+                    var diff := heightDiff(new_node.right);
+                    if(diff >= 0)
+                    {
+                        new_node := rightRotate(new_node);
+                    }
+                    else
+                    {
+                        new_node := leftRightRotate(new_node);
+                    }   
+                }
+            }
+        } else if key == new_node.key {
+            if new_node.left == null && new_node.right == null {
+                new_node := null;
+            } else if new_node.left == null {
+                new_node := new_node.right;
+            } else if new_node.right == null {
+                new_node := new_node.left;
+            }else {
+                var min, r := remove_min(new_node.right);
+                new_node.key := min;  new_node.right := r;
+                new_node.keys := new_node.keys - {key};
+                if new_node.right != null { new_node.nodes := new_node.nodes + new_node.right.nodes; }
+            }
+            if (new_node != null) {
+                var l_h := nodeHeight(new_node.left);
+                var r_h := nodeHeight(new_node.right);
+                new_node.height := max(l_h, r_h + 1);
+                var balance := heightDiff(new_node);
+
+                if(balance < -1)
+                {
+                    if(new_node.right != null)
+                    {
+                        var diff := heightDiff(new_node.right);
+                        if(diff >= 0)
+                        {
+                            new_node := leftRotate(new_node);                        
+                        }
+                        else
+                        {
+                            new_node := rightLeftRotate(new_node);
+                        }
+                    }
+
+                }
+                else if(balance > 1)
+                {
+                    if(new_node.left != null)
+                    {
+                        var diff := heightDiff(new_node.right);
+                        if(diff >= 0)
+                        {
+                            new_node := rightRotate(new_node);
+                        }
+                        else
+                        {
+                            new_node := leftRightRotate(new_node);
+                        }   
+                    }
+
+                }
+            }
+        }
+    }
     // Task 1
     /*
     // for debug
