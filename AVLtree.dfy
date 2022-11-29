@@ -471,6 +471,7 @@ class AVLtree {
     }
 
     method printPreOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
     requires node == null || (node.balanced() && node.valid())
     decreases if node == null then {} else node.nodes
     {
@@ -484,6 +485,7 @@ class AVLtree {
     }
     
     method printInOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
     requires node == null || (node.balanced() && node.valid())
     decreases if node == null then {} else node.nodes
     {
@@ -496,6 +498,7 @@ class AVLtree {
     }
 
     method printPostOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
     requires node == null || (node.balanced() && node.valid())
     decreases if node == null then {} else node.nodes
     {
@@ -508,8 +511,9 @@ class AVLtree {
     }
 
     method printAVL(node: AVLnode?, level: int)
-        requires node == null || node.balanced()
-        decreases if node == null then {} else node.nodes
+    requires root != null ==> root.valid()
+    requires node == null || (node.balanced() && node.valid())
+    decreases if node == null then {} else node.nodes
     {
         if (node != null)
         {
