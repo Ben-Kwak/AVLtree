@@ -509,6 +509,7 @@ class AVLtree {
     }
 
     method printAVL(node: AVLnode?, level: int)
+    requires level >=0
     requires root != null ==> root.valid()
     requires node == null || (node.balanced() && node.valid())
     decreases if node == null then {} else node.nodes
