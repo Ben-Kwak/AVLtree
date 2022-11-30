@@ -468,7 +468,8 @@ class AVLtree {
         if node == null {
             return;
         }
-        print("%d",node.key);
+        print(node.key);
+        print(" ");
         printPreOrder(node.left);
         printPreOrder(node.right);
         
@@ -482,9 +483,10 @@ class AVLtree {
         if node == null {
             return;
         }
-        printPreOrder(node.left);
-        print("%d",node.key);
-        printPreOrder(node.right);  
+        printInOrder(node.left);
+        print(node.key);
+        print(" ");
+        printInOrder(node.right);  
     }
 
     method printPostOrder(node: AVLnode?) 
@@ -495,12 +497,12 @@ class AVLtree {
         if node == null {
             return;
         }
-        printPreOrder(node.left);
-        printPreOrder(node.right);
-        print("%d",node.key);
+        printPostOrder(node.left);
+        printPostOrder(node.right);
+        print(node.key);
+        print(" ");
     }
-
-    method printAVL(node: AVLnode?, level: int)
+    method printLevelOrder(node: AVLnode?, level: int)
         requires level >=0
         requires root != null ==> root.valid()
         requires node == null || (node.balanced() && node.valid())
@@ -508,15 +510,52 @@ class AVLtree {
     {
         if (node != null)
         {
-            printAVL(node.right, level + 1);
+            printLevelOrder(node.right, level + 1);
             print("\n\n");
             var i : int;
             for i := 0 to level{
                 print("\t");
             }
-            print("%d", node.key);
+            print(node.key);
 
-            printAVL(node.left, level + 1);
+            printLevelOrder(node.left, level + 1);
         }
     }
+    method printAVL(order:int) // order 1:pre,2:in,3:post,4,level
+        requires root != null ==> root.valid();
+    {
+        if(order == 1)
+        {
+            printPreOrder(root);
+        }
+        else if(order == 2)
+        {
+            printInOrder(root);
+        }
+        else if(order == 2)
+        {
+            printPostOrder(root);
+        }
+        else if(order == 2)
+        {
+            printLevelOrder(root,3);
+        }
+
+        
+    }
+}
+method Main()
+{
+    var tree := new AVLtree();
+    tree.insert(20);
+    tree.insert(21);
+    tree.insert(22);
+    tree.insert(23);
+    tree.insert(15);
+    tree.insert(1);
+    tree.insert(4);
+    tree.insert(3);
+    tree.insert(2);
+    tree.insert(30);
+    tree.printAVL(1);
 }
