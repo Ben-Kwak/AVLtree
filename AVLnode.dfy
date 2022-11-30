@@ -1,5 +1,3 @@
-include "HelperFunctions.dfy"
-
 class AVLnode {
 	ghost var nodes: set<AVLnode> 
     ghost var keys: set<int>
@@ -43,6 +41,7 @@ class AVLnode {
         (left == null && right != null ==> keys == {key} + right.keys) &&
         (left != null && right != null ==> left.nodes !! right.nodes && keys == left.keys + {key} + right.keys)
   	}    
+
 	predicate balanced() 
         reads this, nodes
     {
