@@ -59,8 +59,7 @@ class AVLtree {
     method findNode(node: AVLnode, queryNum: int) returns (found_node: AVLnode?)
         requires node.valid()
         ensures found_node != null ==> found_node in node.nodes
-        // Why is this not working?
-        // ensures found_node != null ==> found_node.key == queryNum
+        ensures found_node != null ==> found_node.key == queryNum
         decreases node.nodes 
     {
         var temp: AVLnode? := node;
@@ -71,6 +70,8 @@ class AVLtree {
             }
             else if (temp.right != null && queryNum > node.key) {
                 temp := findNode(temp.right, queryNum);
+            } else {
+                temp := null;
             }
         }
 
