@@ -79,21 +79,18 @@ class AVLtree {
     }
 
     /* skip verification for now to implement insert and delete first */
-    method {:verify false} minNode(node: AVLnode) returns (min_node: AVLnode?)
+    method minNode(node: AVLnode) returns (min_node: AVLnode?)
         requires node.valid()
         ensures min_node != null ==> min_node in node.nodes
         ensures min_node != null ==> (forall i :: i in node.keys ==> min_node.key <= i)
-        ensures min_node.valid()
+        ensures min_node != null ==> min_node.valid()
+        decreases node.nodes
     {
-        var temp: AVLnode := node;
-
-        while temp.left != null 
-            decreases if temp.left != null then temp.left.nodes else {}
-        {
-            temp := temp.left;
+        if node.left == null {
+            return node;
         }
 
-        return temp;
+        min_node := minNode(node.left);
     }
     
     static method rightRotate(z: AVLnode) returns( y : AVLnode)
