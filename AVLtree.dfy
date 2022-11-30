@@ -469,22 +469,64 @@ class AVLtree {
             }
         }
     }
-    // Task 1
-    /*
-    // for debug
-    method printAVLtree()
-        requires balanced()
+
+    method printPreOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
+    requires node == null || (node.balanced() && node.valid())
+    decreases if node == null then {} else node.nodes
     {
+        if node == null {
+            return;
+        }
+        print("%d",node.key);
+        printPreOrder(node.left);
+        printPreOrder(node.right);
         
     }
-    */
-
     
-    // Task 2
-    /*
-    method delete(key: int)  
+    method printInOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
+    requires node == null || (node.balanced() && node.valid())
+    decreases if node == null then {} else node.nodes
     {
-    
+        if node == null {
+            return;
+        }
+        printPreOrder(node.left);
+        print("%d",node.key);
+        printPreOrder(node.right);  
     }
-    */
+
+    method printPostOrder(node: AVLnode?) 
+    requires root != null ==> root.valid()
+    requires node == null || (node.balanced() && node.valid())
+    decreases if node == null then {} else node.nodes
+    {
+        if node == null {
+            return;
+        }
+        printPreOrder(node.left);
+        printPreOrder(node.right);
+        print("%d",node.key);
+    }
+
+    method printAVL(node: AVLnode?, level: int)
+    requires root != null ==> root.valid()
+    requires node == null || (node.balanced() && node.valid())
+    decreases if node == null then {} else node.nodes
+    {
+        if (node != null)
+        {
+            printAVL(node.right, level + 1);
+            print("\n\n");
+            var i : int;
+            for i := 0 to level{
+                print("\t");
+            }
+            print("%d", node.key);
+
+            printAVL(node.left, level + 1);
+        }
+    }
+
 }
