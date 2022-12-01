@@ -517,15 +517,25 @@ class AVLtree {
     {
         if (node != null)
         {
-            printLevelOrder(node.right, level + 1);
-            print("\n\n");
-            var i : int;
-            for i := 0 to level{
+            // printLevelOrder(node.right, level + 1);
+            // print("\n\n");
+            // var i : int;
+            // for i := 0 to level{
+            //     print("\t");
+            // }
+            // print(node.key);
+
+            // printLevelOrder(node.left, level + 1);
+            if(level == 1)
+            {
+                print(node.key);
                 print("\t");
             }
-            print(node.key);
-
-            printLevelOrder(node.left, level + 1);
+            else if(level > 1)
+            {
+                printLevelOrder(node.left,level - 1);
+                printLevelOrder(node.right,level - 1);
+            }
         }
     }
     method printAVL(order:int) // order 1:pre,2:in,3:post,4,level
@@ -545,7 +555,21 @@ class AVLtree {
         }
         else if(order == 4)
         {
-            printLevelOrder(root,3);
+            if(root != null)
+            {
+                var l := nodeHeight(root.left);
+                var r := nodeHeight(root.right);
+                var h := max(l , r) + 1;
+                if(h > 1)
+                {
+                    var i : int;
+                    for i := 1 to h + 2{
+                        printLevelOrder(root,i);
+                        print("\n\n");
+                    }
+                }
+
+            }
         }
 
         
@@ -563,7 +587,7 @@ method Main()
     tree.insert(2);
     tree.insert(1);
     tree.insert(30);
-    tree.printAVL(1);
+    tree.printAVL(4);
     tree.delete(30);
-    tree.printAVL(1);
+    tree.printAVL(4);
 }
