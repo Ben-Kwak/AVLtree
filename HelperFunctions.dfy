@@ -1,4 +1,4 @@
-static function method max(x: int, y: int) : int
+function method max(x: int, y: int) : int
 {
     if (x > y) then
         x
