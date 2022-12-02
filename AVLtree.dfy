@@ -219,7 +219,7 @@ class AVLtree {
         keys := root.keys;
     }
 
-    static method insert2(node:AVLnode?, key:int) returns (ret:AVLnode)
+    static method {:timeLimit 100} insert2(node:AVLnode?, key:int) returns (ret:AVLnode)
         requires node == null || (node.valid() && node.balanced())
         modifies if node != null then node.nodes + {node} else {}
         ensures ret.valid()
@@ -346,7 +346,7 @@ class AVLtree {
         }
     }
 
-    method delete1(node:AVLnode,key: int) returns (new_node: AVLnode?)
+    method {:timeLimit 100} delete1(node:AVLnode,key: int) returns (new_node: AVLnode?)
         requires node.valid()
         requires node.balanced()
         modifies node.nodes
