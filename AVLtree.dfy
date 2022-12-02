@@ -93,6 +93,7 @@ class AVLtree {
         min_node := minNode(node.left);
     }
     
+    
     static method rightRotate(z: AVLnode) returns( y : AVLnode)
         requires z.left != null;
         requires z.valid();
@@ -103,7 +104,6 @@ class AVLtree {
         ensures z.valid();
         ensures y == old(z.left);
         ensures y.left == old(y.left);
-        ensures y.right == old(z);
         ensures z.left == old(z.left.right);
         ensures z.right == old(z.right);
     {
@@ -140,7 +140,6 @@ class AVLtree {
         ensures z.valid();
         ensures y == old(z.right);
         ensures y.right == old(y.right);
-        ensures y.left == old(z);
         ensures z.right == old(z.right.left);
         ensures z.left == old(z.left);
     {
@@ -204,7 +203,6 @@ class AVLtree {
         }
         
     }
-
     method insert(key: int) 
         requires valid()
         modifies objects;
@@ -231,10 +229,10 @@ class AVLtree {
     {
         if node == null {
             ret := new AVLnode(key);
-        } else {
-            if key == node.key {
+        } else if (key == node.key){
                 ret := node;
-            } else if (key < node.key) {
+        } else{
+            if (key < node.key) {
                 var t := insert2(node.left, key);
                 var r_h:int := nodeHeight(t.right);
                 var l_h:int := nodeHeight(t.left);
@@ -243,16 +241,17 @@ class AVLtree {
                 node.nodes := node.nodes + node.left.nodes;
                 node.keys := node.keys + {key};
                 ret := node;
-                var balance := heightDiff(ret);
-                if(balance < -1) {
-                    if (ret.right != null) {
-                        var diff := heightDiff(ret.right);
-                        if (diff >= 0) {
-                            ret := leftRotate(ret);                        
-                        }
-                        else {
-                            ret := rightLeftRotate(ret);
-                        }
+                //balance rotate right
+
+                var balance := heightDiff(ret);            
+                if(balance > 1) {
+                    if( key < ret.left.key)
+                    {
+                        ret := rightRotate(ret);
+                    }
+                    else
+                    {
+                        ret:= leftRightRotate(ret);
                     }
                 }
             } else {
@@ -266,18 +265,18 @@ class AVLtree {
                 ret := node;
                 var balance := heightDiff(ret);
                 if (balance < -1) {
-                    if (ret.right != null) {
-                        var diff := heightDiff(ret.right);
-                        if (diff >= 0) {
-                            ret := leftRotate(ret);                        
-                        } else {
-                            ret := rightLeftRotate(ret);
-                        }
+                    if(key > ret.right.key)
+                    {
+                        ret:=leftRotate(ret);
+                    }
+                    else
+                    {
+                        ret := rightLeftRotate(ret);
                     }
                 }   
             }
-
         }
+
     }
 
     method delete(key: int)
@@ -328,20 +327,22 @@ class AVLtree {
                 {
                     if(new_node.right != null)
                     {
-                        var diff := heightDiff(new_node.right);
-                        if(diff >= 0)
+                    //var diff := heightDiff(new_node.right);
+                        var r := nodeHeight(new_node.right);
+                        var l := nodeHeight(new_node.left);
+                        if(r >= l)
                         {
                             new_node := leftRotate(new_node);                        
                         }
                         else
                         {
                             new_node := rightLeftRotate(new_node);
-                        }
+                        }   
                     }
                 }
                 var l_h := nodeHeight(new_node.left);
                 var r_h := nodeHeight(new_node.right);
-                new_node.height := max(l_h, r_h + 1);
+                new_node.height := max(l_h, r_h) + 1;
             }
         }
     }
@@ -364,13 +365,15 @@ class AVLtree {
             if new_node.left != null { new_node.nodes := new_node.nodes + new_node.left.nodes; }
             var l_h := nodeHeight(new_node.left);
             var r_h := nodeHeight(new_node.right);
-            new_node.height := max(l_h, r_h + 1);
+            new_node.height := max(l_h, r_h) + 1;
             var balance := heightDiff(new_node);
             if(balance < -1)
             {
                 if(new_node.right != null)
                 {
                     var diff := heightDiff(new_node.right);
+                    // var r := nodeHeight(new_node.right);
+                    // var l := nodeHeight(new_node.left);
                     if(diff >= 0)
                     {
                         new_node := leftRotate(new_node);                        
@@ -381,20 +384,21 @@ class AVLtree {
                     }
                 }
             }
-        } else if new_node.right != null && new_node.key < key {
+        } else if new_node.right != null && key > new_node.key {
             new_node.right := delete1(new_node.right,key);
             new_node.keys := new_node.keys - {key};
             if new_node.right != null { new_node.nodes := new_node.nodes + new_node.right.nodes; }
             var l_h := nodeHeight(new_node.left);
             var r_h := nodeHeight(new_node.right);
-            new_node.height := max(l_h, r_h + 1);
+            new_node.height := max(l_h, r_h) + 1;
             var balance := heightDiff(new_node);
             if(balance > 1)
             {
-                var diff := heightDiff(new_node.right);
                 if(new_node.left != null)
                 {
-                    var diff := heightDiff(new_node.right);
+                    var diff := heightDiff(new_node.left);
+                    var r := nodeHeight(new_node.right);
+                    var l := nodeHeight(new_node.left);
                     if(diff >= 0)
                     {
                         new_node := rightRotate(new_node);
@@ -421,14 +425,16 @@ class AVLtree {
             if (new_node != null) {
                 var l_h := nodeHeight(new_node.left);
                 var r_h := nodeHeight(new_node.right);
-                new_node.height := max(l_h, r_h + 1);
-                var balance := heightDiff(new_node);
+                new_node.height := max(l_h, r_h) + 1;
 
+                var balance := heightDiff(new_node);
                 if(balance < -1)
                 {
                     if(new_node.right != null)
                     {
                         var diff := heightDiff(new_node.right);
+                        var r := nodeHeight(new_node.right);
+                        var l := nodeHeight(new_node.left);
                         if(diff >= 0)
                         {
                             new_node := leftRotate(new_node);                        
@@ -444,7 +450,9 @@ class AVLtree {
                 {
                     if(new_node.left != null)
                     {
-                        var diff := heightDiff(new_node.right);
+                        var diff := heightDiff(new_node.left);
+                        var r := nodeHeight(new_node.right);
+                        var l := nodeHeight(new_node.left);
                         if(diff >= 0)
                         {
                             new_node := rightRotate(new_node);
@@ -510,15 +518,25 @@ class AVLtree {
     {
         if (node != null)
         {
-            printLevelOrder(node.right, level + 1);
-            print("\n\n");
-            var i : int;
-            for i := 0 to level{
+            // printLevelOrder(node.right, level + 1);
+            // print("\n\n");
+            // var i : int;
+            // for i := 0 to level{
+            //     print("\t");
+            // }
+            // print(node.key);
+
+            // printLevelOrder(node.left, level + 1);
+            if(level == 1)
+            {
+                print(node.key);
                 print("\t");
             }
-            print(node.key);
-
-            printLevelOrder(node.left, level + 1);
+            else if(level > 1)
+            {
+                printLevelOrder(node.left,level - 1);
+                printLevelOrder(node.right,level - 1);
+            }
         }
     }
     method printAVL(order:int) // order 1:pre,2:in,3:post,4,level
@@ -532,13 +550,27 @@ class AVLtree {
         {
             printInOrder(root);
         }
-        else if(order == 2)
+        else if(order == 3)
         {
             printPostOrder(root);
         }
-        else if(order == 2)
+        else if(order == 4)
         {
-            printLevelOrder(root,3);
+            if(root != null)
+            {
+                var l := nodeHeight(root.left);
+                var r := nodeHeight(root.right);
+                var h := max(l , r) + 1;
+                if(h > 1)
+                {
+                    var i : int;
+                    for i := 1 to h + 2{
+                        printLevelOrder(root,i);
+                        print("\n\n");
+                    }
+                }
+
+            }
         }
 
         
@@ -551,11 +583,12 @@ method Main()
     tree.insert(21);
     tree.insert(22);
     tree.insert(23);
-    tree.insert(15);
-    tree.insert(1);
     tree.insert(4);
     tree.insert(3);
     tree.insert(2);
+    tree.insert(1);
     tree.insert(30);
-    tree.printAVL(1);
+    tree.printAVL(4);
+    tree.delete(30);
+    tree.printAVL(4);
 }
