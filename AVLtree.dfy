@@ -2,6 +2,7 @@ include "AVLnode.dfy"
 include "HelperFunctions.dfy"
 
 class AVLtree {
+    // used only for verification
     ghost var objects: set<object> // tree and nodes
     ghost var keys: set<int>
     
@@ -18,7 +19,7 @@ class AVLtree {
         keys := {};
     }
 
-    // need for balance()
+    // need for balanced()
     predicate valid()
         reads this, objects
     {
@@ -92,7 +93,6 @@ class AVLtree {
 
         min_node := minNode(node.left);
     }
-    
     
     static method rightRotate(z: AVLnode) returns( y : AVLnode)
         requires z.left != null;
@@ -203,6 +203,7 @@ class AVLtree {
         }
         
     }
+
     method insert(key: int) 
         requires valid()
         modifies objects;
@@ -510,6 +511,7 @@ class AVLtree {
         print(node.key);
         print(" ");
     }
+
     method printLevelOrder(node: AVLnode?, level: int)
         requires level >=0
         requires root != null ==> root.valid()
@@ -539,6 +541,7 @@ class AVLtree {
             }
         }
     }
+
     method printAVL(order:int) // order 1:pre,2:in,3:post,4,level
         requires root != null ==> root.valid();
     {
@@ -576,6 +579,7 @@ class AVLtree {
         
     }
 }
+
 method Main()
 {
     var tree := new AVLtree();

@@ -1,4 +1,5 @@
 class AVLnode {
+    // used only for verification
 	ghost var nodes: set<AVLnode> 
     ghost var keys: set<int>
 
@@ -21,7 +22,7 @@ class AVLnode {
         height := 0;
     }
 
-    // need for balance()
+    // need for balanced()
 	predicate valid()
     	reads this, nodes
   	{
